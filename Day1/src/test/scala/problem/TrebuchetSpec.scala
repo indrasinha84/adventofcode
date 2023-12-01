@@ -1,6 +1,9 @@
+package problem
+
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import problem.Trebuchet
 
 class TrebuchetSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
 

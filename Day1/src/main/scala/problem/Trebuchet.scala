@@ -1,6 +1,8 @@
-import scala.io.Source
+package problem
+
 import extensions.StringExtensions.*
 
+import scala.io.Source
 import scala.util.Using
 
 object Trebuchet {
