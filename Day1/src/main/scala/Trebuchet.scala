@@ -4,13 +4,14 @@ import extensions.StringExtensions.*
 import scala.util.Using
 
 @main
-def main(): Unit = {
+def Trebuchet(): Int = {
   val filePath = "Day1/src/resources/input/input.XSCORE.txt"
   Using(Source.fromFile(filePath)) { file =>
-    val result = file
+    file
       .getLines()
-      .map(line => s"${line.lowestAdventDigit}${line.highestAdventDigit}".toInt)
+      .map(line => {
+        s"${line.lowestAdventDigit}${line.highestAdventDigit}".toInt
+      })
       .sum
-    println(result)
-  }
+  }.get
 }
