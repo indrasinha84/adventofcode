@@ -4,8 +4,7 @@ import extensions.StringExtensions.*
 import scala.util.Using
 
 object Trebuchet {
-  def results(): Int = {
-    val filePath = "Day1/src/resources/input/input.XSCORE.txt"
+  def results(filePath: String): Int = {
     Using(Source.fromFile(filePath)) { file =>
       file
         .getLines()
