@@ -3,7 +3,7 @@ import sbt.*
 
 object Dependencies {
 
-  val testDependencies: Seq[ModuleID] = Seq(scalaTest).map(_ % "test, it")
+  val testDependencies: Seq[ModuleID] = Seq(scalaTest)
   val mainDependencies: Seq[ModuleID] = Seq.empty
   val dependencies = testDependencies ++ mainDependencies
 

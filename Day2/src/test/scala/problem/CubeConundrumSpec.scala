@@ -2,6 +2,7 @@ package problem
 
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 class CubeConundrumSpec extends AnyFlatSpec with GivenWhenThen with Matchers {

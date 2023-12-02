@@ -9,6 +9,7 @@ lazy val root = (project in file("."))
   .settings(
     libraryDependencies ++= Dependencies.dependencies
   )
+  .aggregate(Day1, Day2, Day3)
 
 
 lazy val Day1 =project
@@ -18,6 +19,12 @@ lazy val Day1 =project
   )
 
 lazy val Day2 =project
+  .settings (publish := {})
+  .settings(
+    libraryDependencies ++= Dependencies.dependencies
+  )
+
+lazy val Day3 =project
   .settings (publish := {})
   .settings(
     libraryDependencies ++= Dependencies.dependencies
