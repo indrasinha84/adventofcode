@@ -16,3 +16,9 @@ lazy val Day1 =project
   .settings(
     libraryDependencies ++= Dependencies.dependencies
   )
+
+lazy val Day2 =project
+  .settings (publish := {})
+  .settings(
+    libraryDependencies ++= Dependencies.dependencies
+  )

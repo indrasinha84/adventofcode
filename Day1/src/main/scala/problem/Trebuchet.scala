@@ -5,13 +5,43 @@ import extensions.StringExtensions.*
 import scala.io.Source
 import scala.util.Using
 
+val digits = Map(
+  "one" -> 1,
+  "two" -> 2,
+  "three" -> 3,
+  "four" -> 4,
+  "five" -> 5,
+  "six" -> 6,
+  "seven" -> 7,
+  "eight" -> 8,
+  "nine" -> 9,
+  "1" -> 1,
+  "2" -> 2,
+  "3" -> 3,
+  "4" -> 4,
+  "5" -> 5,
+  "6" -> 6,
+  "7" -> 7,
+  "8" -> 8,
+  "9" -> 9)
 object Trebuchet {
-  def results(filePath: String): Int = {
+  def problem1(filePath: String): Int = {
     Using(Source.fromFile(filePath)) { file =>
       file
         .getLines()
         .map(line => {
-          s"${line.lowestAdventDigit}${line.highestAdventDigit}".toInt
+          s"${line.lowestAdventDigit(digits.filter(_._1.toCharArray.head.isDigit))}${line.highestAdventDigit(digits.filter(_._1.toCharArray.head.isDigit))}".toInt
+        })
+        .sum
+    }.get
+  }
+
+  def problem2(filePath: String): Int = {
+    Using(Source.fromFile(filePath)) { file =>
+      file
+        .getLines()
+        .map(line => {
+          s"${line.lowestAdventDigit(digits)}${line.highestAdventDigit(digits)}".toInt
         })
         .sum
     }.get
