@@ -2,10 +2,7 @@ package problem
 
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-
-import java.util.concurrent.TimeUnit
 
 class ParabolicReflectorSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
 
