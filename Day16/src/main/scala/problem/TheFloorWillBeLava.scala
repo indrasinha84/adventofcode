@@ -29,8 +29,8 @@ object TheFloorWillBeLava {
       case Direction.Down => (row + 1, col)
       case Direction.Right => (row, col + 1)
       case Direction.Left => (row, col - 1)
-    if (nextRow >= 0 && nextRow < rowLength && nextCol >= 0 && nextCol < colLength &&
-      !beamMap(nextRow)(nextCol).map(_.direction).contains(direction)) Some((nextRow, nextCol)) else None
+      Option.when(nextRow >= 0 && nextRow < rowLength && nextCol >= 0 && nextCol < colLength &&
+        !beamMap(nextRow)(nextCol).map(_.direction).contains(direction))((nextRow, nextCol))
   }
 
 
@@ -87,7 +87,7 @@ object TheFloorWillBeLava {
           moveAndPushIfValid(cur, Left)
         case _ =>
     }
-    beamMap.flatMap(_.map(s => if (s.nonEmpty) 1 else 0)).sum
+    beamMap.map(_.count(_.nonEmpty)).sum
   }
 
   def problem1(filePath: String): Int = {
