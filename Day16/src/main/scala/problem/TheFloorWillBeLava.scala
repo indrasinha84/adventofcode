@@ -12,7 +12,7 @@ private enum Direction:
   case Right
   case Left
 
-final case class Beam(row: Int, col: Int, direction: Direction, sing: Char)
+final case class Beam(row: Int, col: Int, direction: Direction, sign: Char)
 
 object TheFloorWillBeLava {
 
@@ -23,7 +23,7 @@ object TheFloorWillBeLava {
   }.get
 
 
-  private def moveBeamFunc(rowLength: Int, colLength: Int, beamMap: Array[Array[Seq[Beam]]]) = (row: Int, col: Int, direction: Direction) => {
+  private def moveBeamFunc(rowLength: Int, colLength: Int, beamMap: Array[Array[Set[Beam]]]) = (row: Int, col: Int, direction: Direction) => {
     val (nextRow, nextCol) = direction match
       case Direction.Up => (row - 1, col)
       case Direction.Down => (row + 1, col)
@@ -34,9 +34,9 @@ object TheFloorWillBeLava {
   }
 
 
-  private def addToMapFunc(beamMap: Array[Array[Seq[Beam]]]) = (beam: Beam) => beamMap(beam.row)(beam.col) = beamMap(beam.row)(beam.col) :+ beam
+  private def addToMapFunc(beamMap: Array[Array[Set[Beam]]]) = (beam: Beam) => beamMap(beam.row)(beam.col) = beamMap(beam.row)(beam.col) + beam
 
-  private def moveAndPushIfValidFunc(rowLength: Int, colLength: Int, beamStack: mutable.Stack[Beam], beamMap: Array[Array[Seq[Beam]]], input: Array[Array[Char]]) = (beam: Beam, direction: Direction) => {
+  private def moveAndPushIfValidFunc(rowLength: Int, colLength: Int, beamStack: mutable.Stack[Beam], beamMap: Array[Array[Set[Beam]]], input: Array[Array[Char]]) = (beam: Beam, direction: Direction) => {
     val addToMap = addToMapFunc(beamMap)
     val moveBeam = moveBeamFunc(rowLength, colLength, beamMap)
     addToMap(beam)
@@ -49,7 +49,7 @@ object TheFloorWillBeLava {
   private def getEnergizedTilesCountFunc(input: Array[Array[Char]])(start: Beam) = {
     val rowLength = input.length
     val colLength = input.head.length
-    val beamMap = Array.fill(rowLength)(Array.fill(colLength)(Seq.empty[Beam]))
+    val beamMap = Array.fill(rowLength)(Array.fill(colLength)(Set.empty[Beam]))
     val beamStack = mutable.Stack[Beam](start)
     val moveAndPushIfValid = moveAndPushIfValidFunc(rowLength, colLength, beamStack, beamMap, input)
     while (beamStack.nonEmpty) {
