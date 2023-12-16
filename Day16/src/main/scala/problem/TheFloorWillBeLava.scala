@@ -29,8 +29,8 @@ object TheFloorWillBeLava {
       case Direction.Down => (row + 1, col)
       case Direction.Right => (row, col + 1)
       case Direction.Left => (row, col - 1)
-      Option.when(nextRow >= 0 && nextRow < rowLength && nextCol >= 0 && nextCol < colLength &&
-        !beamMap(nextRow)(nextCol).map(_.direction).contains(direction))((nextRow, nextCol))
+    Option.when(nextRow >= 0 && nextRow < rowLength && nextCol >= 0 && nextCol < colLength &&
+      !beamMap(nextRow)(nextCol).map(_.direction).contains(direction))((nextRow, nextCol))
   }
 
 
@@ -55,33 +55,27 @@ object TheFloorWillBeLava {
     while (beamStack.nonEmpty) {
       val cur = beamStack.pop()
       cur match
-        case Beam(_, _, Left, '.') =>
-          moveAndPushIfValid(cur, Left)
+        case Beam(_, _, Left, '.' | '-') => moveAndPushIfValid(cur, Left)
         case Beam(_, _, Left, '\\') => moveAndPushIfValid(cur, Up)
         case Beam(_, _, Left, '/') => moveAndPushIfValid(cur, Down)
         case Beam(_, _, Left, '|') =>
           moveAndPushIfValid(cur, Up)
           moveAndPushIfValid(cur, Down)
-        case Beam(_, _, Left, '-') => moveAndPushIfValid(cur, Left)
-        case Beam(_, _, Right, '.') => moveAndPushIfValid(cur, Right)
+        case Beam(_, _, Right, '.' | '-') => moveAndPushIfValid(cur, Right)
         case Beam(_, _, Right, '\\') => moveAndPushIfValid(cur, Down)
         case Beam(_, _, Right, '/') => moveAndPushIfValid(cur, Up)
         case Beam(_, _, Right, '|') =>
           moveAndPushIfValid(cur, Up)
           moveAndPushIfValid(cur, Down)
-        case Beam(_, _, Right, '-') => moveAndPushIfValid(cur, Right)
-
-        case Beam(_, _, Down, '.') => moveAndPushIfValid(cur, Down)
+        case Beam(_, _, Down, '.' | '|') => moveAndPushIfValid(cur, Down)
         case Beam(_, _, Down, '\\') => moveAndPushIfValid(cur, Right)
         case Beam(_, _, Down, '/') => moveAndPushIfValid(cur, Left)
-        case Beam(_, _, Down, '|') => moveAndPushIfValid(cur, Down)
         case Beam(_, _, Down, '-') =>
           moveAndPushIfValid(cur, Right)
           moveAndPushIfValid(cur, Left)
-        case Beam(_, _, Up, '.') => moveAndPushIfValid(cur, Up)
+        case Beam(_, _, Up, '.' | '|') => moveAndPushIfValid(cur, Up)
         case Beam(_, _, Up, '\\') => moveAndPushIfValid(cur, Left)
         case Beam(_, _, Up, '/') => moveAndPushIfValid(cur, Right)
-        case Beam(_, _, Up, '|') => moveAndPushIfValid(cur, Up)
         case Beam(_, _, Up, '-') =>
           moveAndPushIfValid(cur, Right)
           moveAndPushIfValid(cur, Left)
