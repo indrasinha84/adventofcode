@@ -45,12 +45,12 @@ object TheFloorWillBeLava {
       case None =>
   }
 
-  def problem1(filePath: String): Int = {
-    val input = readFile(filePath)
+
+  private def getEnergizedTilesCountFunc(input: Array[Array[Char]])(start: Beam) = {
     val rowLength = input.length
     val colLength = input.head.length
     val beamMap = Array.fill(rowLength)(Array.fill(colLength)(Seq.empty[Beam]))
-    val beamStack = mutable.Stack[Beam](Beam(0, 0, Right, input(0)(0)))
+    val beamStack = mutable.Stack[Beam](start)
     val moveAndPushIfValid = moveAndPushIfValidFunc(rowLength, colLength, beamStack, beamMap, input)
     while (beamStack.nonEmpty) {
       val cur = beamStack.pop()
@@ -90,10 +90,18 @@ object TheFloorWillBeLava {
     beamMap.flatMap(_.map(s => if (s.nonEmpty) 1 else 0)).sum
   }
 
-  def problem2(filePath: String): Iterator[String] = {
-    Using(Source.fromFile(filePath)) { file =>
-      file
-        .getLines()
-    }.get
+  def problem1(filePath: String): Int = {
+    val input = readFile(filePath)
+    getEnergizedTilesCountFunc(input)(Beam(0, 0, Right, input(0)(0)))
+  }
+
+  def problem2(filePath: String): Int = {
+    val input = readFile(filePath)
+    val rowLength = input.length
+    val colLength = input.head.length
+    val getEnergizedTilesCount = getEnergizedTilesCountFunc(input)
+    val startList = input.indices.flatMap(r => Seq(Beam(r, 0, Right, input(r)(0)), Beam(r, colLength - 1, Left, input(r)(colLength - 1)))
+    ) ++ input.head.indices.flatMap(c => Seq(Beam(0, c, Down, input(0)(c)), Beam(rowLength - 1, c, Up, input(rowLength - 1)(c))))
+    startList.map(getEnergizedTilesCount).max
   }
 }
