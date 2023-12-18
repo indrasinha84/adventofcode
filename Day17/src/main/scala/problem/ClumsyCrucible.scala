@@ -18,14 +18,15 @@ private enum Direction:
 final case class Block(row: Int, col: Int, direction: Direction, allowedMoves: Seq[Direction], remainingMoves: Int)
 
 object ClumsyCrucible {
-  type MoveBlock = (ArrayBuffer[ArrayBuffer[Set[(Int, Block)]]], Direction, Block) => Option[Block]
+  type MoveBlock = (ArrayBuffer[ArrayBuffer[Set[Path]]], Direction, Block) => Option[Block]
+  type Path = (Int, Block)
 
   private def readFile(filePath: String) = Using(Source.fromFile(filePath)) { file =>
     file
       .getLines().map(_.toCharArray.map(_.toString.toInt)).toArray
   }.get
 
-  private def moveBlockFunc(rowLength: Int, colLength: Int)(blockMap: ArrayBuffer[ArrayBuffer[Set[(Int, Block)]]], direction: Direction, currentBlock: Block) = {
+  private def moveBlockFunc(rowLength: Int, colLength: Int)(blockMap: ArrayBuffer[ArrayBuffer[Set[Path]]], direction: Direction, currentBlock: Block) = {
     val remainingMoves = if (currentBlock.direction == direction) currentBlock.remainingMoves - 1 else 2
     val nextBlock = direction match
       case Direction.Up => Block(currentBlock.row - 1, currentBlock.col, direction, Seq(Left, Right, Up), remainingMoves)
@@ -37,13 +38,13 @@ object ClumsyCrucible {
     )(nextBlock)
   }
 
-  def findPaths(input: Array[Array[Int]], moveBlock: MoveBlock, paths: Seq[(Int, Seq[(Int, Int)], Block)]): Int = {
+  def findPaths(input: Array[Array[Int]], moveBlock: MoveBlock, paths: Seq[Path]): Int = {
     var shortestPath = Int.MaxValue
     var results = paths
     val blockMap = ArrayBuffer.fill(input.length)(ArrayBuffer.fill(input.head.length)(Set.empty[(Int, Block)]))
     while (results.nonEmpty) {
       results = results.flatMap(path => {
-        val lastBlock = path._3
+        val lastBlock = path._2
         blockMap(lastBlock.row)(lastBlock.col) = blockMap(lastBlock.row)(lastBlock.col) + ((path._1, lastBlock))
         val nextMoves = lastBlock.allowedMoves.flatMap(next => moveBlock(blockMap, next, lastBlock) match
           case Some(value) =>
@@ -51,15 +52,15 @@ object ClumsyCrucible {
               if ((path._1 + input(value.row)(value.col)) < shortestPath) {
                 shortestPath = path._1 + input(value.row)(value.col)
               }
-              Seq.empty[(Int, Seq[(Int, Int)], Block)]
+              Seq.empty[Path]
             }
             else if (blockMap(value.row)(value.col).map(_._1).minOption.getOrElse(Int.MaxValue) > path._1 + input(value.row)(value.col)) {
-              Seq((path._1 + input(value.row)(value.col), path._2 :+ (value.row, value.col), value))
+              Seq((path._1 + input(value.row)(value.col), value))
             }
             else {
-              Seq.empty[(Int, Seq[(Int, Int)], Block)]
+              Seq.empty[Path]
             }
-          case _ => Seq.empty[(Int, Seq[(Int, Int)], Block)]
+          case _ => Seq.empty[Path]
         )
         nextMoves
       })
@@ -73,7 +74,7 @@ object ClumsyCrucible {
     val rowLength = input.length
     val colLength = input.head.length
     val moveBlock = moveBlockFunc(rowLength, colLength)
-    findPaths(input, moveBlock, Seq((0, Seq.empty, Block(0, 0, Right, Seq(Right, Down), 2))
+    findPaths(input, moveBlock, Seq((0, Block(0, 0, Right, Seq(Right, Down), 2))
 //      , (0, Seq.empty, Block(0, 0, Down, Seq(Right, Down), 2))
     ))
   }
