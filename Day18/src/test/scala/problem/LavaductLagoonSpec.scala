@@ -7,7 +7,7 @@ import org.scalatest.matchers.should.Matchers
 
 class LavaductLagoonSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
 
-  val filePath = "Day18/src/test/resources/input/input.XSCORE.txt"
+  val filePath = "Day18/src/test/resources/input/input.XSCORE1.txt"
 
   "LavaductLagoon" should "match 59560" in {
     LavaductLagoon.problem1(filePath) should be(59560)

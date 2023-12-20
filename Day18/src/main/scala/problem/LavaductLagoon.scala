@@ -1,6 +1,6 @@
 package problem
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 import scala.io.Source
 import scala.math.abs
 import scala.util.Using
@@ -12,7 +12,7 @@ final case class Block(row: Int, col: Int, color: String)
 
 object LavaductLagoon {
 
-  def readFile(filePath: String) = {
+  private def readFile(filePath: String) = {
     Using(Source.fromFile(filePath)) { file =>
       file
         .getLines()
@@ -22,8 +22,7 @@ object LavaductLagoon {
     }.get
   }
 
-  def problem1(filePath: String): Int = {
-    val input = readFile(filePath)
+  def buildLavaPool(input: Seq[DigPlan]) = {
     val start = Block(0, 0, "")
     val blocks = input.foldLeft(Seq(start))((sum, elem) => {
       sum ++ (elem.direction match {
@@ -38,46 +37,43 @@ object LavaductLagoon {
     val width = blocks.map(_.col).max + widthOffset + 1
     val heightOffset = abs(blocks.map(_.row).min)
     val height = blocks.map(_.row).max + heightOffset + 1
-    val pool = Array.fill(height)(Array.fill(width)('.'))
+    val pool = mutable.Seq.fill(height)(mutable.Seq.fill(width)('.'))
     blocks.foreach(k => pool(k.row + heightOffset)(k.col + widthOffset) = '#')
-    pool.foreach(c => {
-      c.foreach(print)
-      println
-    })
-    println
-    val updatedPool = ArrayBuffer.from(pool.map(c => ArrayBuffer.from(c)))
-    pool.indices.foreach(r => {
-      var inside = false
-      var cutoff = 0
-      pool(r).indices.foreach(c => {
-        if (c == 233 && r == 5) {
-          println()
-        }
-        val nextInsideStart = pool(r).indexOf('#', cutoff)
-        if (!inside && nextInsideStart == c) {
-          inside = true
-        }
-        if (inside) {
-          updatedPool(r)(c) = '#'
-          if (c + 1 < pool(r).length && pool(r)(c + 1) == '.') {
+    val startingPoint = pool.indices.flatMap(r => pool(r).indices.map(c => (r, c))).find({ case (r, c) =>
+      pool(r)(c) == '#' && pool(r)(c + 1) == '#' && pool(r + 1)(c) == '#' && pool(r + 1)(c + 1) == '.'
+    }).map(p => (p._1 + 1, p._2 + 1)).getOrElse((-1, -1))
 
-          }
-        }
-
-
+    val stack = mutable.Stack(startingPoint)
+    while (stack.nonEmpty) {
+      val (r, c) = stack.pop()
+      Seq((r - 1, c - 1), (r - 1, c), (r - 1, c + 1), (r, c - 1), (r, c + 1), (r + 1, c - 1), (r + 1, c), (r + 1, c + 1)).foreach({ case (r, c) =>
+        pool(r)(c) match
+          case '.' =>
+            stack.push((r, c))
+            pool(r)(c) = '#'
+          case _ =>
       })
-    })
-    updatedPool.foreach(c => {
-      c.foreach(print)
-      println
-    })
+    }
     pool.flatten.count(_ == '#')
   }
 
-  def problem2(filePath: String): Iterator[String] = {
-    Using(Source.fromFile(filePath)) { file =>
-      file
-        .getLines()
-    }.get
+  def problem1(filePath: String): Int = {
+    val input = readFile(filePath)
+    buildLavaPool(input)
+  }
+
+  private def getDirection: DigPlan => Char = _.color.stripSuffix(")").last match
+      case '0' => 'R'
+      case '1' => 'D'
+      case '2' => 'L'
+      case '3' => 'U'
+
+  private def getSteps(d: DigPlan) = Integer.parseInt(d.color.substring(2, 7), 16)
+
+
+  def problem2(filePath: String): Int = {
+    val input = readFile(filePath)
+    val updatedInput = input.map(d => d.copy(direction = getDirection(d), steps = getSteps(d)))
+    buildLavaPool(updatedInput)
   }
 }
