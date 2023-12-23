@@ -13,7 +13,7 @@ class SandSlabsSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
     SandSlabs.problem1(filePath) should be(418)
   }
 
-  it should "match 69110" in {
-    SandSlabs.problem2(filePath) should be(69110)
+  it should "match 70702" in {
+    SandSlabs.problem2(filePath) should be(70702)
   }
 }
