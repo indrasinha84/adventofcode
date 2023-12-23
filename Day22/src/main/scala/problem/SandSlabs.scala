@@ -2,71 +2,69 @@ package problem
 
 import scala.io.Source
 import scala.util.Using
+import scala.util.control.Breaks.*
 
 object SandSlabs {
 
   final case class Coordinate(x: Int, y: Int, z: Int)
 
-  final case class Brick(start: Coordinate, end: Coordinate)
+  final case class Brick(num: Int, start: Coordinate, end: Coordinate)
 
   final case class Support(supporting: Seq[Brick], supportedBy: Seq[Brick])
-
-  //  val cache = mutable.Map.empty[Brick, Support]
-
+  
   private def readFile(filePath: String) = Using(Source.fromFile(filePath)) { file =>
     file
       .getLines().map(_.split('~').map(_.split(',') match
         case Array(x, y, z) => Coordinate(x.toInt, y.toInt, z.toInt)
       ) match
-        case Array(start, end) => Brick(start, end)
-      ).toSeq
+        case Array(start, end) =>
+          Brick(0, start, end)
+      ).toSeq.sortBy(b => (b.start.z, b.start.x, b.start.y)).zipWithIndex.map(bi => bi._1.copy(num = bi._2 + 1))
   }.get
 
   def problem1(filePath: String): Int = {
     val input = readFile(filePath)
-    //    brickSupportMap.foreach(println)
-//    input.sortBy(_.start.z).foreach(println)
     val movedBricks = input.sortBy(_.start.z).foldLeft(Seq.empty[Brick]
     )((sum, elem) => {
-      var skip = false
-      (elem.start.z - 1 to 1 by -1).foldLeft(elem)((b, e) => {
-        val myCoordinates = Range.inclusive(b.start.x, b.end.x).flatMap(x => Range.inclusive(b.start.y, b.end.y).map(y =>
+      var movedBrick = elem
+      breakable {
+        for e <- elem.start.z - 1 to 1 by -1 do {
+          val myCoordinates = Range.inclusive(movedBrick.start.x, movedBrick.end.x).flatMap(x => Range.inclusive(movedBrick.start.y, movedBrick.end.y).map(y =>
+            (x, y))).toSet
+          if (!sum.exists(o => {
+            val otherCoordinates = Range.inclusive(o.start.x, o.end.x).flatMap(x => Range.inclusive(o.start.y, o.end.y).map(y =>
+              (x, y))).toSet
+            movedBrick.start.z - 1 == o.end.z && (myCoordinates intersect otherCoordinates).nonEmpty
+          })) {
+            movedBrick = movedBrick.copy(start = movedBrick.start.copy(z = e), movedBrick.end.copy(z = e + movedBrick.end.z - movedBrick.start.z))
+          }
+          else {
+            break
+          }
+        }
+      }
+      sum :+ movedBrick
+    })
+    val brickSupportMap = movedBricks.map(b => {
+      val movedBrick = b
+      val myCoordinates = Range.inclusive(movedBrick.start.x, movedBrick.end.x).flatMap(x => Range.inclusive(movedBrick.start.y, movedBrick.end.y).map(y =>
+        (x, y))).toSet
+      b -> Support(movedBricks.filter(o => {
+        val otherCoordinates = Range.inclusive(o.start.x, o.end.x).flatMap(x => Range.inclusive(o.start.y, o.end.y).map(y =>
           (x, y))).toSet
-        if (!skip && !sum.exists(o => {
+        o != b && (myCoordinates intersect otherCoordinates).nonEmpty && b.end.z + 1 == o.start.z
+      }), // supporting
+        movedBricks.filter(o => {
           val otherCoordinates = Range.inclusive(o.start.x, o.end.x).flatMap(x => Range.inclusive(o.start.y, o.end.y).map(y =>
             (x, y))).toSet
-          b.start.z - 1 == o.end.z && (myCoordinates intersect otherCoordinates).nonEmpty
-        }))
-        {
-          b.copy(start = b.start.copy(z = e), b.end.copy(z = e + b.end.z - b.start.z))
-        }
-        else
-        {
-          skip = true
-          b
-        }
-      }) +: sum
-    })
-//    println
-//    movedBricks.sortBy(_.start.z).foreach(println)
-    val brickSupportMap = movedBricks.map(b => {
-      b -> Support(movedBricks.filter(o => o != b && (((b.start.x to b.end.x) intersect (o.start.x to o.end.x)).nonEmpty ||
-        ((b.start.y to b.end.y) intersect (o.start.y to o.end.y)).nonEmpty) &&
-        b.end.z + 1 == o.start.z), // supporting
-        movedBricks.filter(o => o != b && (((b.start.x to b.end.x) intersect (o.start.x to o.end.x)).nonEmpty ||
-          ((b.start.y to b.end.y) intersect (o.start.y to o.end.y)).nonEmpty) &&
-          b.start.z - 1 == o.end.z) // supportedBy
+          o != b && (myCoordinates intersect otherCoordinates).nonEmpty &&
+            b.start.z - 1 == o.end.z
+        }) // supportedBy
       )
     }).toMap
-//    println
-//    brickSupportMap.foreach(println)
-//    println
-//    println
     brickSupportMap.count { case (_, s) =>
       val check = !s.supporting.exists(b =>
         brickSupportMap(b).supportedBy.size == 1)
-      //      println(s"$br -> $s and check is $check")
-
       check
     }
   }
