@@ -92,32 +92,24 @@ object ALongWalk {
 
     }
 
-
     val vertices = multiNodes.toSeq.sortBy(n => (n.row, n.col)).map(v => {
       val edges = pathFinder(v).map(n => addTillNextVertice(n, v, Edge(1, n))).toSet
       Vertice(node = v, adjoiningNodes = edges)
     })
     val verticesMap = vertices.map(v => v.node -> v).toMap
-
-
     val unvisitedNodes: Set[Vertice] = vertices.toSet
 
-    var distance = 0
-
-    def findLongestPath(current: Vertice, unvisited: Set[Vertice], cnt: Int): Unit = {
+    def findLongestPath(distance: Int, current: Vertice, unvisited: Set[Vertice], cnt: Int): Int = {
       if (current == verticesMap(start)) {
-        if (distance < cnt) {
-          distance = cnt
-          println(distance)
-        }
+        if (distance < cnt) cnt else distance
       }
       else {
-        current.adjoiningNodes.filter(a => unvisited.map(_.node).contains(a.endNode)).foreach(adj => {
-          findLongestPath(verticesMap(adj.endNode), unvisited - current, cnt + adj.distance)
-        })
+        current.adjoiningNodes.filter(a => unvisited.map(_.node).contains(a.endNode)).map(adj => {
+          findLongestPath(distance, verticesMap(adj.endNode), unvisited - current, cnt + adj.distance)
+        }).maxOption.getOrElse(0)
       }
     }
-    findLongestPath(verticesMap(end), unvisitedNodes, 0)
-    distance
+
+    findLongestPath(0, verticesMap(end), unvisitedNodes, 0)
   }
 }

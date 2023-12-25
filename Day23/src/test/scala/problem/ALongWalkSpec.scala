@@ -13,7 +13,7 @@ class ALongWalkSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
     ALongWalk.problem1(filePath) should be(1998)
   }
 
-  it should "match 69110" in {
-    ALongWalk.problem2(filePath) should be(69110)
+  it should "match 6434" in {
+    ALongWalk.problem2(filePath) should be(6434)
   }
 }
