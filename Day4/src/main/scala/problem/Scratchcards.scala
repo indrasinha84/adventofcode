@@ -1,5 +1,6 @@
 package problem
 
+import scala.collection.mutable
 import scala.io.Source
 import scala.util.Using
 
@@ -21,12 +22,17 @@ object Scratchcards {
     val input = readFile(filePath)
     input.map(r => {
       val numberOfWinnings = (r._2 intersect r._3).size
-      if (numberOfWinnings == 0) 0 else Math.pow(2, numberOfWinnings - 1)
-    }).sum.toInt
+      if (numberOfWinnings == 0) 0 else Math.pow(2, numberOfWinnings - 1).toInt
+    }).sum
   }
 
   def problem2(filePath: String): Int = {
     val input = readFile(filePath)
-    0
+    val winningCountMap = input.map(r => r._1 -> (r._2 intersect r._3).size).toMap
+    val resultMap = mutable.Map.from(winningCountMap.view.mapValues(_ => 1))
+    input.foreach(r => {
+      Seq.range(r._1 + 1, r._1 +  winningCountMap(r._1) + 1).foreach(i => resultMap += (i -> (resultMap(i) + resultMap(r._1))))
+    })
+    resultMap.values.sum
   }
 }
