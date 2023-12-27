@@ -3,7 +3,7 @@ package problem
 import scala.io.Source
 import scala.util.Using
 
-object NewProblem {
+object Snowverload {
   def problem1(filePath: String): Iterator[String] = {
     Using(Source.fromFile(filePath)) { file =>
       file
