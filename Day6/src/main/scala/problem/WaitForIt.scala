@@ -8,16 +8,16 @@ object WaitForIt {
   private def readFile(filePath: String) = Using(Source.fromFile(filePath)) { file =>
     file
       .getLines().toArray match
-      case Array(time, distance) => (time.split(' ').filterNot(_.isBlank).tail.map(_.toInt), distance.split(' ').filterNot(_.isBlank).tail.map(_.toInt))
+      case Array(time, distance) => (time.split(' ').filterNot(_.isBlank).tail.map(_.toLong), distance.split(' ').filterNot(_.isBlank).tail.map(_.toLong))
   }.get
 
   @tailrec
-  private def findFirstSuccessfulPress(t: Int, d: Int, p: Int): Int = if ((p * (t - p)) > d) p else findFirstSuccessfulPress(t, d, p + 1)
+  private def findFirstSuccessfulPress(t: Long, d: Long, p: Long): Long = if ((p * (t - p)) > d) p else findFirstSuccessfulPress(t, d, p + 1)
 
   @tailrec
-  private def findLastSuccessfulPress(t: Int, d: Int, p: Int): Int = if ((p * (t - p)) > d) p else findLastSuccessfulPress(t, d, p - 1)
+  private def findLastSuccessfulPress(t: Long, d: Long, p: Long): Long = if ((p * (t - p)) > d) p else findLastSuccessfulPress(t, d, p - 1)
 
-  def problem1(filePath: String): Int = {
+  def problem1(filePath: String): Long = {
     val (time, distance) = readFile(filePath)
     val timeAndDistance = time.zip(distance)
     timeAndDistance.map({ case (t, d) =>
@@ -27,8 +27,12 @@ object WaitForIt {
     }).product
   }
 
-  def problem2(filePath: String): Int = {
-    val input = readFile(filePath)
-    0
+  def problem2(filePath: String): Long = {
+    val (time, distance) = readFile(filePath)
+    val t = time.map(_.toString).mkString.toLong
+    val d = distance.map(_.toString).mkString.toLong
+    val minimumPress = findFirstSuccessfulPress(t, d, 1)
+    val lastPress = findLastSuccessfulPress(t, d, t - minimumPress)
+    lastPress - minimumPress + 1
   }
 }

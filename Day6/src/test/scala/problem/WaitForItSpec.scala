@@ -10,10 +10,10 @@ class WaitForItSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
   val filePath = "Day6/src/test/resources/input/input.XSCORE.txt"
 
   "WaitForIt" should "match 138915" in {
-    WaitForIt.problem1(filePath) should be(138915)
+    WaitForIt.problem1(filePath) should be(138915L)
   }
 
-  it should "match 69110" in {
-    WaitForIt.problem2(filePath) should be(69110)
+  it should "match 27340847" in {
+    WaitForIt.problem2(filePath) should be(27340847L)
   }
 }
