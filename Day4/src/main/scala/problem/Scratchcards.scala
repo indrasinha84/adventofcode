@@ -29,10 +29,9 @@ object Scratchcards {
   def problem2(filePath: String): Int = {
     val input = readFile(filePath)
     val winningCountMap = input.map(r => r._1 -> (r._2 intersect r._3).size).toMap
-    val resultMap = mutable.Map.from(winningCountMap.view.mapValues(_ => 1))
-    input.foreach(r => {
-      Seq.range(r._1 + 1, r._1 +  winningCountMap(r._1) + 1).foreach(i => resultMap += (i -> (resultMap(i) + resultMap(r._1))))
-    })
-    resultMap.values.sum
+    input.flatMap(r => Seq.range(r._1 + 1, r._1 + winningCountMap(r._1) + 1).map(i => (r, i)))
+      .foldLeft(winningCountMap.view.mapValues(_ => 1).toMap)((resultsMap, everyWinning) => {
+      resultsMap + (everyWinning._2 -> (resultsMap(everyWinning._2) + resultsMap(everyWinning._1._1)))
+    }).values.sum
   }
 }
