@@ -17,6 +17,11 @@ object StringExtensions {
         if (index > -1) (remainig._1.substring(index), d._2) else remainig
       })._2
     }
+
+    def lpad(c: Char, n: Int): String =
+      (c.toString * (n - str.length)) + str
   }
+
+
 
 }
