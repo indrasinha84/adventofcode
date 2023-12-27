@@ -1,10 +1,11 @@
+import Dependencies.Compile.scalaParallel
 import Dependencies.Test.*
 import sbt.*
 
 object Dependencies {
 
   val testDependencies: Seq[ModuleID] = Seq(scalaTest)
-  val mainDependencies: Seq[ModuleID] = Seq.empty
+  val mainDependencies: Seq[ModuleID] = Seq(scalaParallel)
   val dependencies = testDependencies ++ mainDependencies
 
   object Test {
@@ -12,7 +13,7 @@ object Dependencies {
   }
 
   object Compile {
-
+    val scalaParallel = "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4"
   }
 
 }

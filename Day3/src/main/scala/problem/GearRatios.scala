@@ -137,24 +137,26 @@ object GearRatios {
         c
       }
     }
+
     input.indices.flatMap(row => {
         input(row).indices.map(col => (row, col))
           .filter({ case (r, c) => input(r)(c) == '*' })
-          .map({ case (r, c) => findValidNeighbours((r, c), true).filter({ case (r, c) => input(r)(c).isDigit }).toSet })
-      }).map(n =>
-        val currentSet = mutable.Set.from(n)
-        val resultNumbers = mutable.ArrayBuffer.empty[Int]
-        while (currentSet.nonEmpty) {
-          val curr = currentSet.head
-          currentSet.remove(curr)
-          val left = findLeft(Seq(curr)).sorted
-          val right = findRight(Seq(curr)).tail.sorted
-          currentSet.filterInPlace(i => !(left ++ right).toSet.contains(i))
-          val number = (left ++ right).map({ case (r, c) => input(r)(c) }).mkString.toInt
-          resultNumbers += number
-        }
-        if (resultNumbers.size == 2) resultNumbers.product else 0
-      )
+          .map({ case (r, c) =>
+            val n = findValidNeighbours((r, c), true).filter({ case (r, c) => input(r)(c).isDigit }).toSet
+            val currentSet = mutable.Set.from(n)
+            val resultNumbers = mutable.ArrayBuffer.empty[Int]
+            while (currentSet.nonEmpty) {
+              val curr = currentSet.head
+              currentSet.remove(curr)
+              val left = findLeft(Seq(curr)).sorted
+              val right = findRight(Seq(curr)).tail.sorted
+              currentSet.filterInPlace(i => !(left ++ right).toSet.contains(i))
+              val number = (left ++ right).map({ case (r, c) => input(r)(c) }).mkString.toInt
+              resultNumbers += number
+            }
+            if (resultNumbers.size == 2) resultNumbers.product else 0
+          })
+      })
       .sum
     //          .flatMap(_.map(_._1)).sum
     //    0

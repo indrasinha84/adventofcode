@@ -11,8 +11,12 @@ class GearRatiosSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
   "GearRatios" should "match 556367" in {
     GearRatios.problem1(filePath) should be(556367)
   }
-//
-//  it should "match 69110" in {
-//    Day3Problem.problem2(filePath) should be(69110)
-//  }
+
+  "GearRatios" should "match slow solution 556367" in {
+    GearRatios.problem1SlowSolution(filePath) should be(556367)
+  }
+
+  it should "match 89471771" in {
+    GearRatios.problem2(filePath) should be(89471771)
+  }
 }
