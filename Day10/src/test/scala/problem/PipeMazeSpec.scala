@@ -13,7 +13,7 @@ class PipeMazeSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
     PipeMaze.problem1(filePath) should be(6979L)
   }
 
-  it should "match 69110" in {
-    PipeMaze.problem2(filePath) should be(0L)
+  it should "match 443" in {
+    PipeMaze.problem2(filePath) should be(443L)
   }
 }
