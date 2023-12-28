@@ -49,7 +49,7 @@ object TheFloorWillBeLava {
   private def getEnergizedTilesCountFunc(input: Array[Array[Char]])(start: Beam) = {
     val rowLength = input.length
     val colLength = input.head.length
-    val beamMap = Array.fill(rowLength)(Array.fill(colLength)(Set.empty[Beam]))
+    val beamMap = Array.fill(rowLength, colLength)(Set.empty[Beam])
     val beamStack = mutable.Stack[Beam](start)
     val moveAndPushIfValid = moveAndPushIfValidFunc(rowLength, colLength, beamStack, beamMap, input)
     while (beamStack.nonEmpty) {
