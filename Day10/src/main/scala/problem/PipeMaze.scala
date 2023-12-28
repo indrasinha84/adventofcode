@@ -1,10 +1,9 @@
 package problem
 
-import model.graph.{Edge, Node, Path, Vertice}
 import extensions.SeqExtensions.*
-import utils.{findNeighbouringNodes, isValidIndexF, isValidNodeF}
+import model.graph.{Edge, Node, Path, Vertice}
+import utils.isValidNodeF
 
-import scala.annotation.tailrec
 import scala.collection.immutable.Seq
 import scala.collection.mutable
 import scala.io.Source
@@ -39,7 +38,7 @@ object PipeMaze {
     neighbours
   }
 
-  private def findPath( findValidNodesForStart: Node => Seq[Node], input: Seq[Seq[Char]], isValidNode: Node => Boolean)(edge: Node) = {
+  private def findPath(findValidNodesForStart: Node => Seq[Node], input: Seq[Seq[Char]], isValidNode: Node => Boolean)(edge: Node) = {
     (input(edge.row)(edge.col) match
       case '|' => Seq(Node(edge.row + 1, edge.col), Node(edge.row - 1, edge.col))
       case '-' => Seq(Node(edge.row, edge.col + 1), Node(edge.row, edge.col - 1))
@@ -74,7 +73,6 @@ object PipeMaze {
       changesDone = false
       val minValue = pathMap.map(_._2.distance).min
       pathMap.filter(_._2.distance == minValue).keys.foreach(currentNode => {
-        println
         verticesMap(currentNode).adjoiningNodes.filterNot(e => visitedNodes.map(_.node).contains(e.endNode)).foreach(adj => {
           val adjPath = pathMap(adj.endNode)
           pathMap(adj.endNode) = adjPath.copy(distance = pathMap(currentNode).distance - adj.distance, previous = currentNode)
