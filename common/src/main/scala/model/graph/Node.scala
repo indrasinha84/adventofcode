@@ -1,5 +1,3 @@
 package model.graph
 
-class Node {
-
-}
+final case class Node(row: Int, col: Int)

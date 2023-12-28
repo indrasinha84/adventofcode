@@ -1,5 +1,4 @@
 package model.graph
 
-class Vertice {
+final case class Vertice(node: Node, adjoiningNodes: Set[Edge])
 
-}

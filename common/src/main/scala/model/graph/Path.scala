@@ -1,5 +1,3 @@
 package model.graph
 
-class Path {
-
-}
+final case class Path(previous: Seq[Node], distance: Int)

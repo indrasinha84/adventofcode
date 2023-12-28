@@ -1,3 +1,3 @@
 package model.graph
 
-case class Edge()
+final case class Edge(distance: Int, endNode: Node)

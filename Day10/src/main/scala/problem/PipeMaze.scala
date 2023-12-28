@@ -54,7 +54,7 @@ object PipeMaze {
 
   def problem1(filePath: String): Long = {
     val input = readFile(filePath)
-    val validNodes = input.toGraphNodes().filter(n => input(n.row)(n.col) != '.')
+    val validNodes = input.toGraphNodes.filter(n => input(n.row)(n.col) != '.')
     val start = validNodes.find(n => input(n.row)(n.col) == 'S').get
     val isValidNode = isValidNodeF(input.length, input.head.length)
     val findValidNodesForStart = findValidNodesForStartF(isValidNode, input)
