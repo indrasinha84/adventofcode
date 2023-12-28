@@ -84,7 +84,7 @@ object PipeMaze {
         unvisitedNodes.remove(verticesMap(currentNode))
       })
     }
-    pathMap.values.map(_.distance).filterNot(_ == Int.MaxValue).min.abs
+    pathMap.values.map(_.distance).min.abs
   }
 
   def problem2(filePath: String): Long = {
