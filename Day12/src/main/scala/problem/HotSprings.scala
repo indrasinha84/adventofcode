@@ -28,9 +28,9 @@ object HotSprings {
         .filter({ case (template, _, _) => template.nonEmpty })
         .groupMap({ case (template, remaining, _) => (template, remaining) })(_._3).view.mapValues(_.sum).map(x => (x._1._1, x._1._2, x._2)).toSeq
         .flatMap({ case (template, remaining, multiplier) =>
-          val newRemaining = remaining.removeFirstDots()
           template match
             case t =>
+              val newRemaining = remaining.removeFirstDots()
               val desiredText = Seq.fill(t.head)('#').mkString
               val desiredTextWithDot = desiredText + '.'
               if ((newRemaining.length >= desiredTextWithDot.length && newRemaining.startsWith(desiredTextWithDot)) || newRemaining == desiredText) {
@@ -40,15 +40,13 @@ object HotSprings {
                 (newRemaining.substring(desiredText.length, desiredTextWithDot.length).contains('.') || newRemaining.substring(desiredText.length, desiredTextWithDot.length).contains('?'))
               ) {
                 if (newRemaining.head == '?') {
-                  Seq( (template.tail, newRemaining.takeRight(newRemaining.length - desiredTextWithDot.length), multiplier),
-                  (template, newRemaining.tail, multiplier))
+                  Seq((template.tail, newRemaining.takeRight(newRemaining.length - desiredTextWithDot.length), multiplier),
+                    (template, newRemaining.tail, multiplier))
                 }
                 else {
                   Seq((template.tail, newRemaining.takeRight(newRemaining.length - desiredTextWithDot.length), multiplier))
                 }
-
               }
-
               else if (newRemaining.length == desiredText.length && (!newRemaining.contains('.') && newRemaining.contains('?'))) {
                 Seq((template.tail, "", multiplier))
               }
