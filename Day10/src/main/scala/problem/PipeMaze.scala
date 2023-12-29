@@ -22,7 +22,7 @@ object PipeMaze {
     Ordering.by(e => (e.row, e.col))
 
 
-  def findValidNodesForStartF(isValidNode: Node => Boolean, input: Seq[Seq[Char]])(edge: Node) = {
+  private def findValidNodesForStartF(isValidNode: Node => Boolean, input: Seq[Seq[Char]])(edge: Node) = {
     var neighbours = Seq.empty[Node]
     var nextNode = Node(edge.row + 1, edge.col)
     if (isValidNode(nextNode) && Seq('|', 'L', 'J').contains(input(nextNode.row)(nextNode.col)))
