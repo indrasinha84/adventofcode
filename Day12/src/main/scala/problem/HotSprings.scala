@@ -1,104 +1,74 @@
 package problem
 
-import java.util.concurrent.atomic.AtomicInteger
 import scala.annotation.tailrec
+import scala.collection.mutable
+import scala.collection.parallel.CollectionConverters.*
 import scala.io.Source
 import scala.util.Using
-import scala.collection.parallel.CollectionConverters.*
 
 object HotSprings {
-
-  @tailrec
-  private def findCombinations(strList: Seq[String]): Seq[String] = {
-    if (strList.exists(!_.contains("?"))) {
-      strList
-    }
-    else {
-      findCombinations(strList.flatMap(s => Seq(s.replaceFirst("\\?", "."), s.replaceFirst("\\?", "#"))))
-    }
-
-  }
 
   private def readFile(filePath: String) = Using(Source.fromFile(filePath)) { file =>
     file
       .getLines()
       .map(_.split(' ') match
-        case Array(str, template) => (template.split(',').map(_.toInt).toSeq, str)).toSeq
+        case Array(str, template) => (template.split(',').map(_.toInt).toSeq, str, 1L)).toSeq
   }.get
 
 
   import extensions.StringExtensions.*
 
   @tailrec
-  private def findValidCombinations(templateAndRemaining: Seq[(Seq[Int], String, String)], cnt: Int): Int = {
+  private def findValidCombinations(templateAndRemaining: Seq[(Seq[Int], String, Long)], cnt: Long): Long = {
     if (templateAndRemaining.isEmpty) {
       cnt
     }
     else {
-      val newCnt = cnt + templateAndRemaining.count({ case (template, remaining, selected) => template.isEmpty && !remaining.contains('#') && selected.nonEmpty })
-      val newTR = templateAndRemaining
+      val newCnt = cnt + templateAndRemaining.filter({ case (template, remaining, _) => template.isEmpty && !remaining.contains('#') }).map(_._3).sum
+      val newTR = mutable.ArrayBuffer.empty[(Seq[Int], String, Long)]
+      templateAndRemaining
         .filter({ case (template, _, _) => template.nonEmpty })
-        .map(tr => tr.copy(_2 = tr._2.removeFirstDots())).flatMap({ case (template, remaining, selected) =>
+        .groupMap({ case (template, remaining, _) => (template, remaining) })(_._3).view.mapValues(_.sum).map(x => (x._1._1, x._1._2, x._2)).toSeq
+        .foreach({ case (template, remaining, multiplier) =>
+          val newRemaining = remaining.removeFirstDots()
           template match
             case t =>
               val desiredText = Seq.fill(t.head)('#').mkString
               val desiredTextWithDot = desiredText + '.'
-              //              println(s"Checking for $remaining and desiredText is $desiredTextWithDot and already selected is $selected")
-              if ((remaining.length >= desiredTextWithDot.length && remaining.startsWith(desiredTextWithDot)) || remaining == desiredText) {
-                Seq((template.tail, remaining.stripPrefix(desiredText).stripPrefix("."), selected + desiredTextWithDot))
+              if ((newRemaining.length >= desiredTextWithDot.length && newRemaining.startsWith(desiredTextWithDot)) || newRemaining == desiredText) {
+                newTR += ((template.tail, newRemaining.stripPrefix(desiredText).stripPrefix("."), multiplier))
               }
-              else if (remaining.length >= desiredTextWithDot.length && (!remaining.substring(0, desiredText.length).contains('.') && (remaining.substring(0, desiredText.length).contains('?') || remaining.substring(0, desiredText.length).contains('#'))) &&
-                (remaining.substring(desiredText.length, desiredTextWithDot.length).contains('.') || remaining.substring(desiredText.length, desiredTextWithDot.length).contains('?'))
+              else if (newRemaining.length >= desiredTextWithDot.length && (!newRemaining.substring(0, desiredText.length).contains('.') && (newRemaining.substring(0, desiredText.length).contains('?') || newRemaining.substring(0, desiredText.length).contains('#'))) &&
+                (newRemaining.substring(desiredText.length, desiredTextWithDot.length).contains('.') || newRemaining.substring(desiredText.length, desiredTextWithDot.length).contains('?'))
               ) {
-                if (remaining.head == '?') {
-                  Seq((template.tail, remaining.takeRight(remaining.length - desiredTextWithDot.length), selected + desiredTextWithDot),
-                    (template, remaining.tail, selected + '.'))
+                if (newRemaining.head == '?') {
+                  newTR += ((template.tail, newRemaining.takeRight(newRemaining.length - desiredTextWithDot.length), multiplier))
+                  newTR += ((template, newRemaining.tail, multiplier))
                 }
                 else {
-                  Seq((template.tail, remaining.takeRight(remaining.length - desiredTextWithDot.length), selected + desiredTextWithDot))
+                  newTR += ((template.tail, newRemaining.takeRight(newRemaining.length - desiredTextWithDot.length), multiplier))
                 }
 
               }
 
-              else if (remaining.length == desiredText.length && (!remaining.contains('.') && remaining.contains('?'))) {
-                Seq((template.tail, "", selected + desiredText))
+              else if (newRemaining.length == desiredText.length && (!newRemaining.contains('.') && newRemaining.contains('?'))) {
+                newTR += ((template.tail, "", multiplier))
               }
-              else if (remaining.headOption.contains('?')) {
-                Seq((template, remaining.tail, selected + '.'))
-              }
-              else {
-                Seq.empty
+              else if (newRemaining.headOption.contains('?')) {
+                newTR += ((template, newRemaining.tail, multiplier))
               }
         })
-      findValidCombinations(newTR, newCnt)
+      findValidCombinations(newTR.toSeq, newCnt)
     }
 
 
   }
 
 
-  def problem1(filePath: String): Int = {
-    val input = readFile(filePath).map(c => (c._1, c._2, ""))
-    //    println(findValidCombinations(Seq(input(2)), 0))
-    input.map(s => {
-      val xxx = findValidCombinations(Seq(s), 0)
-      //                    println(s"Combinations for ${s._2} is $xxx")
-      xxx
-    }).sum
-    //    0
-  }
+  def problem1(filePath: String): Long = readFile(filePath).par.map(s => findValidCombinations(Seq(s), 0L)).sum
 
-  def problem2(filePath: String): Int = {
-    val input = readFile(filePath)
-    val unfoldedInput = input.map({ case (template, str) => (Seq.fill(5)(template).flatten, Seq.fill(5)(str).mkString("?")) }).map(c => (c._1, c._2, ""))
-    val i = AtomicInteger(0)
+  def problem2(filePath: String): Long = readFile(filePath)
+    .map({ case (template, str, multiplier) => (Seq.fill(5)(template).flatten, Seq.fill(5)(str).mkString("?"), multiplier) })
+    .par.map(s => findValidCombinations(Seq(s), 0L)).sum
 
-    unfoldedInput.par.map(s => {
-      val in = i.getAndIncrement()
-      println(s"$in Doing for ${s._2}")
-      val xxx = findValidCombinations(Seq(s), 0)
-      println(s"Completed for $in")
-      xxx
-    }).sum
-  }
 }
