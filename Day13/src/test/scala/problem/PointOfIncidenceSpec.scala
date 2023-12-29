@@ -13,7 +13,7 @@ class PointOfIncidenceSpec extends AnyFlatSpec with GivenWhenThen with Matchers 
     PointOfIncidence.problem1(filePath) should be(33520)
   }
 
-  it should "match 69110" in {
-    PointOfIncidence.problem2(filePath) should be(69110)
+  it should "match 34824" in {
+    PointOfIncidence.problem2(filePath) should be(34824)
   }
 }
