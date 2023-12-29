@@ -9,11 +9,11 @@ class NewProblemSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
 
   val filePath = "Day2/src/test/resources/input/input.XSCORE.txt"
 
-//  "NewProblem" should "match 2810" in {
-//    Day3Problem.problem1(filePath) should be(2810)
-//  }
-//
-//  it should "match 69110" in {
-//    Day3Problem.problem2(filePath) should be(69110)
-//  }
+  "NewProblem" should "match 2810" in {
+    Day3Problem.problem1(filePath) should be(2810)
+  }
+
+  it should "match 69110" in {
+    Day3Problem.problem2(filePath) should be(69110)
+  }
 }
