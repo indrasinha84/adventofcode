@@ -1,7 +1,6 @@
 package problem
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.collection.parallel.CollectionConverters.*
 import scala.io.Source
 import scala.util.Using
@@ -25,40 +24,42 @@ object HotSprings {
     }
     else {
       val newCnt = cnt + templateAndRemaining.filter({ case (template, remaining, _) => template.isEmpty && !remaining.contains('#') }).map(_._3).sum
-      val newTR = mutable.ArrayBuffer.empty[(Seq[Int], String, Long)]
-      templateAndRemaining
+      val newTR = templateAndRemaining
         .filter({ case (template, _, _) => template.nonEmpty })
         .groupMap({ case (template, remaining, _) => (template, remaining) })(_._3).view.mapValues(_.sum).map(x => (x._1._1, x._1._2, x._2)).toSeq
-        .foreach({ case (template, remaining, multiplier) =>
+        .flatMap({ case (template, remaining, multiplier) =>
           val newRemaining = remaining.removeFirstDots()
           template match
             case t =>
               val desiredText = Seq.fill(t.head)('#').mkString
               val desiredTextWithDot = desiredText + '.'
               if ((newRemaining.length >= desiredTextWithDot.length && newRemaining.startsWith(desiredTextWithDot)) || newRemaining == desiredText) {
-                newTR += ((template.tail, newRemaining.stripPrefix(desiredText).stripPrefix("."), multiplier))
+                Seq((template.tail, newRemaining.stripPrefix(desiredText).stripPrefix("."), multiplier))
               }
               else if (newRemaining.length >= desiredTextWithDot.length && (!newRemaining.substring(0, desiredText.length).contains('.') && (newRemaining.substring(0, desiredText.length).contains('?') || newRemaining.substring(0, desiredText.length).contains('#'))) &&
                 (newRemaining.substring(desiredText.length, desiredTextWithDot.length).contains('.') || newRemaining.substring(desiredText.length, desiredTextWithDot.length).contains('?'))
               ) {
                 if (newRemaining.head == '?') {
-                  newTR += ((template.tail, newRemaining.takeRight(newRemaining.length - desiredTextWithDot.length), multiplier))
-                  newTR += ((template, newRemaining.tail, multiplier))
+                  Seq( (template.tail, newRemaining.takeRight(newRemaining.length - desiredTextWithDot.length), multiplier),
+                  (template, newRemaining.tail, multiplier))
                 }
                 else {
-                  newTR += ((template.tail, newRemaining.takeRight(newRemaining.length - desiredTextWithDot.length), multiplier))
+                  Seq((template.tail, newRemaining.takeRight(newRemaining.length - desiredTextWithDot.length), multiplier))
                 }
 
               }
 
               else if (newRemaining.length == desiredText.length && (!newRemaining.contains('.') && newRemaining.contains('?'))) {
-                newTR += ((template.tail, "", multiplier))
+                Seq((template.tail, "", multiplier))
               }
               else if (newRemaining.headOption.contains('?')) {
-                newTR += ((template, newRemaining.tail, multiplier))
+                Seq((template, newRemaining.tail, multiplier))
+              }
+              else {
+                Seq.empty
               }
         })
-      findValidCombinations(newTR.toSeq, newCnt)
+      findValidCombinations(newTR, newCnt)
     }
 
 
