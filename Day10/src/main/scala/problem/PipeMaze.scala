@@ -7,7 +7,6 @@ import utils.isValidNodeF
 import scala.collection.immutable.Seq
 import scala.collection.mutable
 import scala.io.Source
-import scala.math.abs
 import scala.util.Using
 
 object PipeMaze {
