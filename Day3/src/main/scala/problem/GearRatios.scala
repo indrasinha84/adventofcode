@@ -6,6 +6,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.io.Source
 import scala.util.Using
+import scala.util.control.Breaks.{break, breakable}
 
 final case class Position(x: Int, y: Int)
 
@@ -13,33 +14,41 @@ object GearRatios {
 
 
   private def isValidPartNumber(base: Array[Array[Char]], start: (Int, Int), end: (Int, Int)): Boolean = {
-    if (start._2 > 0) {
-      val valueToCheck = base(start._1)(start._2 - 1)
-      if (!valueToCheck.isDigit && valueToCheck != '.') {
-        return true
-      }
-    }
-    if (end._2 < base(start._1).length - 1) {
-      val valueToCheck = base(start._1)(end._2 + 1)
-      if (!valueToCheck.isDigit && valueToCheck != '.') {
-        return true
-      }
-    }
-    for j <- 0.max(start._2 - 1) to (base(start._1).length - 1).min(end._2 + 1) do {
-      if (start._1 > 0) {
-        val valueToCheck1 = base(start._1 - 1)(j)
-        if (!valueToCheck1.isDigit && valueToCheck1 != '.') {
-          return true
+    var retVal = false
+    breakable {
+      if (start._2 > 0) {
+        val valueToCheck = base(start._1)(start._2 - 1)
+        if (!valueToCheck.isDigit && valueToCheck != '.') {
+          retVal = true
+          break
         }
       }
-      if (start._1 < base.length - 1) {
-        val valueToCheck2 = base(start._1 + 1)(j)
-        if (!valueToCheck2.isDigit && valueToCheck2 != '.') {
-          return true
+      if (end._2 < base(start._1).length - 1) {
+        val valueToCheck = base(start._1)(end._2 + 1)
+        if (!valueToCheck.isDigit && valueToCheck != '.') {
+          retVal = true
+          break
+        }
+      }
+
+      for j <- 0.max(start._2 - 1) to (base(start._1).length - 1).min(end._2 + 1) do {
+        if (start._1 > 0) {
+          val valueToCheck1 = base(start._1 - 1)(j)
+          if (!valueToCheck1.isDigit && valueToCheck1 != '.') {
+            retVal = true
+            break
+          }
+        }
+        if (start._1 < base.length - 1) {
+          val valueToCheck2 = base(start._1 + 1)(j)
+          if (!valueToCheck2.isDigit && valueToCheck2 != '.') {
+            retVal = true
+            break
+          }
         }
       }
     }
-    false
+    retVal
   }
 
   def getValidPartNumbers(filePath: String): Seq[(Int, (Int, Int), (Int, Int))] = {

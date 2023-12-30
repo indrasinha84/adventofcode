@@ -23,7 +23,8 @@ object ClumsyCrucible {
 
   private def readFile(filePath: String) = Using(Source.fromFile(filePath)) { file =>
     file
-      .getLines().map(_.toCharArray.map(_.toString.toInt)).toArray
+      .getLines()
+      .map(_.toCharArray.toSeq).toSeq
   }.get
 
   private def moveBlockFunc(rowLength: Int, colLength: Int)(blockMap: ArrayBuffer[ArrayBuffer[Set[Path]]], direction: Direction, currentBlock: Block) = {
@@ -70,13 +71,14 @@ object ClumsyCrucible {
 
 
   def problem1(filePath: String): Int = {
-    val input = readFile(filePath)
-    val rowLength = input.length
-    val colLength = input.head.length
-    val moveBlock = moveBlockFunc(rowLength, colLength)
-    findPaths(input, moveBlock, Seq((0, Block(0, 0, Right, Seq(Right, Down), 2))
-//      , (0, Seq.empty, Block(0, 0, Down, Seq(Right, Down), 2))
-    ))
+    //    val input = readFile(filePath)
+    //    val rowLength = input.length
+    //    val colLength = input.head.length
+    //    val moveBlock = moveBlockFunc(rowLength, colLength)
+    //    findPaths(input, moveBlock, Seq((0, Block(0, 0, Right, Seq(Right, Down), 2))
+    ////      , (0, Seq.empty, Block(0, 0, Down, Seq(Right, Down), 2))
+    //    ))
+    0
   }
 
   def problem2(filePath: String): Iterator[String] = {

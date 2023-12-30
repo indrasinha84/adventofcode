@@ -18,8 +18,4 @@ object StringExtensions {
       })._2
     }
   }
-
-  def lpad(c: Char, n: Int): String =
-    (c.toString * (n - str.length)) + s
-
 }

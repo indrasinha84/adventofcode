@@ -1,29 +1,23 @@
 package problem
 
-import scala.io.Source
-import scala.util.Using
-import utils.{findNeighbours, findValidNeighboursF, isValidIndexF}
+import extensions.SeqExtensions.*
+import model.graph.*
+import utils.isValidIndexF
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-
-final case class Node(row: Int, col: Int)
-
-final case class Edge(distance: Int, endNode: Node)
-
-final case class Vertice(node: Node, adjoiningNodes: Set[Edge])
-
-final case class Path(previous: Node, distance: Int)
+import scala.io.Source
+import scala.util.Using
 
 object ALongWalk {
 
   private def readFile(filePath: String) = Using(Source.fromFile(filePath)) { file =>
     file
-      .getLines().map(_.toCharArray).toArray
+      .getLines().map(_.toCharArray.toSeq).toSeq
   }.get
 
 
-  private def findPath(input: Array[Array[Char]], isValidIndex: ((Int, Int)) => Boolean)(edge: Node) = {
+  private def findPath(input: Seq[Seq[Char]], isValidIndex: ((Int, Int)) => Boolean)(edge: Node) = {
     Seq(
       (if (isValidIndex(edge.row, edge.col - 1) && Seq('.', '>').contains(input(edge.row)(edge.col - 1))) Seq(Node(edge.row, edge.col - 1)) else Nil) ++
         (if (isValidIndex(edge.row, edge.col + 1) && Seq('.', '<').contains(input(edge.row)(edge.col + 1))) Seq(Node(edge.row, edge.col + 1)) else Nil) ++
@@ -42,25 +36,24 @@ object ALongWalk {
     val isValidIndex = isValidIndexF(input.length, input.head.length)
     val pathFinder = findPath(input, isValidIndex)
     var changesDone = true
-    val validNodes = input.indices.flatMap(row => input(row).indices.map(col => Node(row, col)))
-      .filter(n => input(n.row)(n.col) != '#')
+    val validNodes = input.toGraphNodes.filter(n => input(n.row)(n.col) != '#')
     val pathMap = mutable.SortedMap.from(validNodes.map(n => n -> (if (n == start) Path(null, 0) else Path(null, Int.MaxValue))))
     while (changesDone) {
       changesDone = false
       pathMap.filter(_._1 != start).foreach(p => {
         val immediateNeighbours = pathFinder(p._1)
           .filter(n => pathMap(n).distance != Int.MaxValue)
-          .filter(n => n == start || (pathMap(n).previous != p._1))
+          .filter(n => n == start || (pathMap(n).previous.head != p._1))
         immediateNeighbours.foreach(n => {
           val curr = pathMap(p._1)
           val prev = pathMap(n)
           if (curr.distance == Int.MaxValue || curr.distance > prev.distance - 1) {
-            pathMap(p._1) = Path(previous = n, distance = prev.distance - 1)
+            pathMap(p._1) = Path(previous = Seq(n), distance = prev.distance - 1)
             changesDone = true
           }
-          else if (curr.distance == prev.distance - 1 && curr.previous != n) {
+          else if (curr.distance == prev.distance - 1 && curr.previous.head != n) {
             changesDone = true
-            pathMap(p._1) = Path(previous = n, distance = prev.distance - 1)
+            pathMap(p._1) = Path(previous = Seq(n), distance = prev.distance - 1)
           }
 
         })
