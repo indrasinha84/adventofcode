@@ -1,5 +1,15 @@
-broadcaster -> a
-%a -> inv, con
-&inv -> b
-%b -> con
-&con -> output
+broadcaster -> cd, ef, gh, ij
+%ij -> ab
+%ab -> hh
+%cd -> ck
+%ef -> kz
+%gh -> ns
+&hh -> gt
+&ck -> vr
+&kz -> nl
+&ns -> lr
+&lr -> jq
+&nl -> jq
+&vr -> jq
+&gt -> jq
+&jq -> rx

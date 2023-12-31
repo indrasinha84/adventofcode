@@ -22,4 +22,8 @@ package object utils {
     findNeighbours(position, diagonal).filter(isValidIndex)
   }
 
+  def lcm(list: Seq[Long]): Long = list.foldLeft(1: Long) { (a, b) => b * a / LazyList.iterate((a, b)) { case (x, y) => (y, x % y) }.dropWhile(_._2 != 0).head._1.abs }
+  def lcmBigInt(list: Seq[BigInt]): BigInt = list.foldLeft(BigInt(1)) { (a, b) => b * a / LazyList.iterate((a, b)) { case (x, y) => (y, x % y) }.dropWhile(_._2 != 0).head._1.abs }
+
+
 }
