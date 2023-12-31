@@ -8,7 +8,7 @@ import org.scalatest.matchers.should.Matchers
 class ALongWalkSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
 
   val filePath = "Day23/src/test/resources/input/input.XSCORE.txt"
-ā
+
   "ALongWalk" should "match 1998" in {
     ALongWalk.problem1(filePath) should be(1998)
   }

@@ -6,7 +6,7 @@ import org.scalatest.matchers.should.Matchers
 
 class PulsePropagationSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
 
-  val filePath = "Day20/src/test/resources/input/input.XSCORE1.txt"
+  val filePath = "Day20/src/test/resources/input/input.XSCORE.txt"
 
 //  "PulsePropagation" should "match 912199500" in {
 //    PulsePropagation.problem1(filePath) should be(912199500)
