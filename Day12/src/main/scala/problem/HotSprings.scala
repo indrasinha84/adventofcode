@@ -1,5 +1,7 @@
 package problem
 
+import extensions.StringExtensions.*
+
 import scala.annotation.tailrec
 import scala.collection.parallel.CollectionConverters.*
 import scala.io.Source
@@ -13,9 +15,6 @@ object HotSprings {
       .map(_.split(' ') match
         case Array(str, template) => (template.split(',').map(_.toInt).toSeq, str, 1L)).toSeq
   }.get
-
-
-  import extensions.StringExtensions.*
 
   @tailrec
   private def findValidCombinations(templateAndRemaining: Seq[(Seq[Int], String, Long)], cnt: Long): Long = {

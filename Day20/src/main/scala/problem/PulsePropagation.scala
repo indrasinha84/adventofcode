@@ -1,5 +1,7 @@
 package problem
 
+import extensions.SeqExtensions.*
+import extensions.StringExtensions.*
 import problem.Pulse.*
 import problem.Status.*
 
@@ -41,9 +43,9 @@ final case class Button() extends Component {
 object PulsePropagation {
 
 
-  val FlipFlopPattern = "(%[a-z]+)".r
-  val ConjunctionPattern = "(&[a-z]+)".r
-  val BroadcasterPattern = "(broadcaster)".r
+  private val FlipFlopPattern = "(%[a-z]+)".r
+  private val ConjunctionPattern = "(&[a-z]+)".r
+  private val BroadcasterPattern = "(broadcaster)".r
 
 
   private def readFile(filePath: String): Seq[(String, Component)] = Using(Source.fromFile(filePath)) { file =>
@@ -58,8 +60,7 @@ object PulsePropagation {
       ).toSeq
   }.get
 
-  val cache = mutable.Map.empty[Int, mutable.Map[Pulse, Int]]
-  val pulseCount = mutable.Map(High -> 0, Low -> 0)
+  private val pulseCount = mutable.Map(High -> 0, Low -> 0)
   private var round = 0
   private var rxLowCount = 0
   private var rxCount = 0
@@ -71,7 +72,7 @@ object PulsePropagation {
   private var latestState: mutable.Map[String, Component] = _
   private var initialState: Map[String, Component] = _
 
-  def toggleFlipFlop(ff: FlipFlop, pulse: Pulse): Seq[Pulse] = {
+  private def toggleFlipFlop(ff: FlipFlop, pulse: Pulse): Seq[Pulse] = {
     val (updatedComponent, outputPulse) = (ff.status, pulse) match
       case (On, Low) => (ff.copy(status = Off), Some(Low))
       case (Off, Low) => (ff.copy(status = On), Some(High))
@@ -91,7 +92,7 @@ object PulsePropagation {
     })
   }
 
-  def toggleConjunction(con: Conjunction, pws: PulseWithSource): Seq[Pulse] = {
+  private def toggleConjunction(con: Conjunction, pws: PulseWithSource): Seq[Pulse] = {
     val lastStateOfTheConjunction = latestState(con.name).asInstanceOf[Conjunction]
     lastStateOfTheConjunction.sourceWithStatus += (pws.source -> pws.pulse)
     val outputPulse = if (lastStateOfTheConjunction.sourceWithStatus.exists(_._2 == Low)) High else Low
@@ -113,7 +114,7 @@ object PulsePropagation {
 
   }
 
-  def toggleBroadcaster(brd: Broadcaster, pulse: Pulse): Seq[Pulse] = {
+  private def toggleBroadcaster(brd: Broadcaster, pulse: Pulse): Seq[Pulse] = {
     brd.destinations.map(d => {
       if (latestState.keySet.contains(d)) {
         if (sourceDestinationPairs.contains((brd.name, d))) {
@@ -125,7 +126,7 @@ object PulsePropagation {
     })
   }
 
-  def toggleButton(btn: Button): Seq[Pulse] = {
+  private def toggleButton(btn: Button): Seq[Pulse] = {
     btn.destinations.map(d => {
       if (latestState.keySet.contains(d)) {
         workQueue.enqueue((PulseWithSource(Low, btn.name), d))
@@ -135,7 +136,7 @@ object PulsePropagation {
   }
 
   @tailrec
-  def processQueueForCount(): Unit = {
+  private def processQueueForCount(): Unit = {
     workQueue.dequeueFirst(_ => true) match
       case Some(value) =>
         val newStatus = (value._1, latestState(value._2)) match
@@ -153,7 +154,7 @@ object PulsePropagation {
 
 
   @tailrec
-  def processQueue(): Unit = {
+  private def processQueue(): Unit = {
     workQueue.dequeueFirst(_ => true) match
       case Some(value) =>
         (value._1, latestState(value._2)) match
@@ -212,46 +213,17 @@ object PulsePropagation {
 
       sourceDestinationPairs --= lastHighCount.filter(p => p._2.length == cntToCheck).keySet
     }
-    lastHighCount.groupMap(_._1._2)(_._2).foreach(println)
-    import scala.collection.parallel.CollectionConverters.*
 
+    (0 until cntToCheck).foreach(i => println(lastHighCount.toSeq.sortBy(_._1).map(e => e._2(i).toString.lpad(' ', 5)).mkString(",, ")))
 
-    @tailrec
-    def getCommonNumber(currentState: Seq[(Long, Int, Seq[Long])]): Long = {
-      if (currentState.map(_._1).distinct.length > 1) {
-        val current = currentState.minBy(_._1)
-        val highestValue = currentState.maxBy(_._1)
-        val totalCycleValue = current._3.sum
-        val numberOfCyclesToMove = (highestValue._1 - current._1) / totalCycleValue
-        var next = current._1 + numberOfCyclesToMove * totalCycleValue
-        var nextIndex = current._2
-        while (next < highestValue._1) {
-          next = next + current._3(nextIndex)
-          nextIndex = if ((current._2 + 1) == current._3.size) 0 else current._2 + 1
-        }
-        getCommonNumber(currentState.filterNot(_ == current) :+ ((next, nextIndex, current._3)))
-      }
-      else {
-        currentState.head._1
-      }
-    }
-
-    val base = lastHighCount.view.mapValues(s => {
+    final case class SeriesDetails(offset: Long, cycleValue: Long, modValue: Long)
+    val rules = lastHighCount.view.mapValues(s => {
       val first = s.head
       val diffList = s.sliding(2).map { case Seq(left, right) => right - left }.toSeq
       val indexOfFirstDiff = diffList.sliding(2).indexWhere({ case Seq(left, right) => right != left })
       val cycle = diffList.take(indexOfFirstDiff + 2)
-      (first, cycle)
-    }).toMap.values.map(a => (a._1, 0, a._2)).toSeq // currentValue, index, cycle
-
-    val commonNumber = getCommonNumber(base)
-
-    base.foreach(println)
-
-    import extensions.StringExtensions.*
-    (0 until cntToCheck).foreach(i => println(lastHighCount.toSeq.sortBy(_._1).map(e => e._1 -> e._2(i).toString.lpad(' ', 5)).mkString(",, ")))
-
-    println(lastHighCount.values.flatMap(_.sliding(2).map { case Seq(left, right) => right - left }).toSeq.distinct.mkString(" "))
-    commonNumber
+      SeriesDetails(first, cycle.sum, cycle.head)
+    }).values.toSeq
+    rules.filter(_.cycleValue % 2 != 0).map(_.cycleValue).lcm
   }
 }
