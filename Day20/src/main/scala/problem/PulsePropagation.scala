@@ -67,7 +67,7 @@ object PulsePropagation {
   private var lastStatus: mutable.Map[(String, String), Pulse] = _
   private var lastHighCount: mutable.Map[(String, String), Seq[Long]] = _
 
-  private var sourceDestinationPairs: mutable.Set[(String, String)] = _
+  private var sourceDestinationPairs: mutable.Set[(String, String)] = mutable.Set.empty
   private var workQueue: mutable.Queue[(PulseWithSource, String)] = _
   private var latestState: mutable.Map[String, Component] = _
   private var initialState: Map[String, Component] = _
