@@ -69,15 +69,9 @@ object ClumsyCrucible {
 
     val visitedSet = mutable.Set.empty[ClumsyNode]
     val verticesMap = vertices.map(v => v.node -> v).toMap
-    //    val unvisitedNodes = vertices.map(_.node).toSet
-    //    val visitedNodes = Set.empty[ClumsyNode]
-    var shortestPaths = mutable.Set.empty[Int]
-
+    val shortestPaths = mutable.Set.empty[Int]
     @tailrec
     def findShortestPath(): Int = {
-      if (unvisitedMap.size % 1000 == 0) {
-        println(unvisitedMap.size)
-      }
       if (unvisitedMap.nonEmpty) {
         val minValue = unvisitedMap.map(_._2.distance).min
         val currentNodes = unvisitedMap.filter(_._2.distance == minValue)
@@ -105,32 +99,6 @@ object ClumsyCrucible {
         shortestPaths.min
       }
     }
-
-    //    while (unvisitedNodes.nonEmpty) {
-    //      val currentNode = pathMap.view.filterKeys(n => unvisitedNodes.contains(n)).minBy(_._2.distance)._1
-    //      if (currentNode.row == 1 && currentNode.col == 2) {
-    //        println
-    //      }
-    //      verticesMap(currentNode).adjoiningNodes.filterNot(e => visitedNodes.contains(e.endNode) ||
-    //          (pathMap(currentNode).previous != null && e.endNode.row == pathMap(currentNode).previous.row && e.endNode.col == pathMap(currentNode).previous.col))
-    //        .foreach(adj => {
-    //          val adjPath = pathMap(adj.endNode)
-    //          if (pathMap(adj.endNode).distance > pathMap(currentNode).distance + adj.distance)
-    //            pathMap(adj.endNode) = adjPath.copy(distance = pathMap(currentNode).distance + adj.distance, previous = currentNode)
-    //        })
-    //      visitedNodes.add(currentNode)
-    //      unvisitedNodes.remove(currentNode)
-    //      println(unvisitedNodes.size)
-    //    }
-    //    val result = ArrayBuffer.fill(input.length, input.head.length)(0)
-    //    var curr = pathMap.view.filterKeys(c => c.row == input.length - 1 && c.col == input.head.length - 1).minBy(_._2.distance)._1
-    //    //    while (curr != start) {
-    //    //      result(curr.row)(curr.col) = pathMap(curr).distance
-    //    //      curr = pathMap(curr).previous
-    //    //    }
-    //    import extensions.StringExtensions.*
-    //    result.map(_.map(_.toString.lpad(' ', 4)).mkString).foreach(println)
-    //    pathMap.view.filterKeys(c => c.row == input.length - 1 && c.col == input.head.length - 1).values.map(_.distance).min
     findShortestPath()
   }
 

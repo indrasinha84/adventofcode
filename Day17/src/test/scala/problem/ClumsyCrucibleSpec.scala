@@ -7,10 +7,10 @@ import org.scalatest.matchers.should.Matchers
 
 class ClumsyCrucibleSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
 
-  val filePath = "Day17/src/test/resources/input/input.XSCORE1.txt"
+  val filePath = "Day17/src/test/resources/input/input.XSCORE.txt"
 
-  "ClumsyCrucible" should "match 102" in {
-    ClumsyCrucible.problem1(filePath) should be(102)
+  "ClumsyCrucible" should "match 1256" in {
+    ClumsyCrucible.problem1(filePath) should be(1256)
   }
 
   it should "match 69110" in {
