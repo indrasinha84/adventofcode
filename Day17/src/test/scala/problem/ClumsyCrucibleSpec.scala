@@ -13,7 +13,7 @@ class ClumsyCrucibleSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
     ClumsyCrucible.problem1(filePath) should be(1256)
   }
 
-  it should "match 69110" in {
-    ClumsyCrucible.problem2(filePath) should be(69110)
+  it should "match 1382" in {
+    ClumsyCrucible.problem2(filePath) should be(1382)
   }
 }

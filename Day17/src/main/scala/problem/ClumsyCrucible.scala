@@ -60,9 +60,9 @@ object ClumsyCrucible {
       ClumsyVertice(node = v, adjoiningNodes = edges)
     })
 
-    val pathMap1 = validNodes.map(n => n -> (if (n.row == start._1 && n.col == start._2) ClumsyPath(null, 0) else ClumsyPath(null, Int.MaxValue))).toMap
+    val pathMap = validNodes.map(n => n -> (if (n.row == start._1 && n.col == start._2) ClumsyPath(null, 0) else ClumsyPath(null, Int.MaxValue))).toMap
 
-    val unvisitedMap = mutable.Map.from(pathMap1)
+    val unvisitedMap = mutable.Map.from(pathMap)
 
     val visitedSet = mutable.Set.empty[ClumsyNode]
     val verticesMap = vertices.map(v => v.node -> v).toMap
@@ -80,7 +80,7 @@ object ClumsyCrucible {
               unvisitedMap(adj.endNode).distance > currentPath.distance + adj.distance
             })
             .foreach(adj => {
-              unvisitedMap(adj.endNode) = unvisitedMap(adj.endNode).copy(distance = currentPath.distance + adj.distance, previous = currentNode)
+              unvisitedMap(adj.endNode) = ClumsyPath(distance = currentPath.distance + adj.distance, previous = currentNode)
             }
 
             )
