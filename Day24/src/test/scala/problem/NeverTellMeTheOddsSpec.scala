@@ -9,8 +9,8 @@ class NeverTellMeTheOddsSpec extends AnyFlatSpec with GivenWhenThen with Matcher
 
   val filePath = "Day24/src/test/resources/input/input.XSCORE.txt"
 
-  "NeverTellMeTheOdds" should "match 6198" in {
-    NeverTellMeTheOdds.problem1(filePath) should be(6198) // Too Low
+  "NeverTellMeTheOdds" should "match 14046" in {
+    NeverTellMeTheOdds.problem1(filePath) should be(14046)
   }
 
   it should "match 69110" in {

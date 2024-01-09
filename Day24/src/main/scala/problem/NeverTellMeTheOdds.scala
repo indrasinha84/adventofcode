@@ -1,10 +1,12 @@
 package problem
 
+import java.text.DecimalFormat
 import scala.io.Source
 import scala.math.*
 import scala.util.Using
+import extensions.StringExtensions.*
 
-final case class Axis(x: Double, y: Double, z: Double)
+final case class Axis(x: BigDecimal, y: BigDecimal, z: BigDecimal)
 
 final case class Hail(position: Axis, velocity: Axis)
 
@@ -16,57 +18,63 @@ object NeverTellMeTheOdds {
       .getLines()
       .map(_.split('@') match
         case Array(position, velocity) => Hail(position.split(',') match
-          case Array(x, y, z) => Axis(x.trim.toDouble, y.trim.toDouble, z.trim.toDouble)
+          case Array(x, y, z) => Axis(x.trim.toBD, y.trim.toBD, z.trim.toBD)
           , velocity.split(',') match
-            case Array(x, y, z) => Axis(x.trim.toDouble, y.trim.toDouble, z.trim.toDouble))).toSeq
+            case Array(x, y, z) => Axis(x.trim.toBD, y.trim.toBD, z.trim.toBD))).toSeq
   }.get
 
-  var mergeCount = 0
-  var mergeCountWithinRange = 0
 
-  private def findCrossingHailStorms(input: Seq[Hail], minRange: Double, maxRange: Double) = {
+  def isRightDirection(p: BigDecimal, v: BigDecimal, newP: BigDecimal) = {
+    (v.sign == -1 && newP < p) || (v.sign == 0 && newP == p) || (v.sign == 1 && newP > p)
+  }
+
+  private def findCrossingHailStorms(input: Seq[Hail], minRange: BigDecimal, maxRange: BigDecimal) = {
 
     input.combinations(2).map(combination => {
       val nodeFrom = combination.minBy(c => (c.position.x, c.position.y))
       val nodeTo = combination.maxBy(c => (c.position.x, c.position.y))
-      val a = sqrt(pow(nodeTo.position.y - nodeFrom.position.y, 2) + pow(nodeTo.position.x - nodeFrom.position.x, 2))
-      val nodeFromAngleWithSign = atan(nodeFrom.velocity.y / nodeFrom.velocity.x)
-      val nodeToAngleWithSign = atan(nodeTo.velocity.y / nodeTo.velocity.x)
-      {
-        val B = (atan2(nodeTo.position.y - nodeFrom.position.y, nodeTo.position.x - nodeFrom.position.x) -
-          atan2(nodeFrom.velocity.y, nodeFrom.velocity.x)).abs
-        val C = (atan2(nodeFrom.position.y - nodeTo.position.y, nodeFrom.position.x - nodeTo.position.x)
-          - atan2(nodeTo.velocity.y, nodeTo.velocity.x)).abs
-        val A =  toRadians(180 - toDegrees(B) - toDegrees(C))
-        val c = sin(C) / sin(A) * a
-        val b = sin(B) / sin(A) * a
-        val nodeFromx = nodeFrom.position.x + (cos(nodeFromAngleWithSign.abs) * c * nodeFrom.velocity.x.sign) //nodeFrom.position.x + sin(toRadians(90 - nodeFromAngle)).abs * c * nodeFrom.velocity.x.sign
-        val nodeFromy = nodeFrom.position.y + (sin(nodeFromAngleWithSign.abs) * c * nodeFrom.velocity.y.sign) //nodeFrom.position.y + sin(toRadians(nodeFromAngle)).abs * c * nodeFrom.velocity.y.sign
-        val nodeTox = nodeTo.position.x + (cos(nodeToAngleWithSign.abs) * b * nodeTo.velocity.x.sign) //nodeTo.position.x + sin(toRadians(90 - nodeToAngle)).abs * b * nodeTo.velocity.x.sign
-        val nodeToy = nodeTo.position.y + (sin(nodeToAngleWithSign.abs) * b * nodeTo.velocity.y.sign) //nodeTo.position.y + sin(toRadians(nodeToAngle)).abs * b * nodeTo.velocity.y.sign
 
-        val distanceBetweenIntersections = sqrt(pow(nodeToy - nodeFromy, 2) + pow(nodeTox - nodeFromx, 2))
-        if (distanceBetweenIntersections > 0.0001) {
-          0 // Did not merge in future
-        }
-        else if (nodeFromx >= minRange && nodeFromx <= maxRange && nodeFromy >= minRange && nodeFromy <= maxRange) {
-          println
-          1 //Not within range.
+      val px1 = nodeFrom.position.x
+      val py1 = nodeFrom.position.y
+      val vx1 = nodeFrom.velocity.x
+      val vy1 = nodeFrom.velocity.y
+      val px2 = nodeTo.position.x
+      val py2 = nodeTo.position.y
+      val vx2 = nodeTo.velocity.x
+      val vy2 = nodeTo.velocity.y
+
+      val c1 = px1 * vy1 - py1 * vx1
+      val c2 = px2 * vy2 - py2 * vx2
+
+      if ((vy1 * vx2 - vx1 * vy2) != 0) {
+        val y = (vy2 * c1 - vy1 * c2) / (vy1 * vx2 - vx1 * vy2)
+        if (vy1 != 0) {
+          val x = (c1 + vx1 * y) / vy1
+          if (x >= minRange && x <= maxRange && y >= minRange && y <= maxRange) {
+            if (isRightDirection(px1, vx1, x) && isRightDirection(py1, vy1, y) && isRightDirection(px2, vx2, x) && isRightDirection(py2, vy2, y)) {
+              1
+            }
+            else {
+              0
+            }
+          }
+          else {
+            0
+          }
         }
         else {
           0
         }
       }
-    }
-    ).sum
+      else {
+        0
+      }
+    }).sum
   }
 
   def problem1(filePath: String): Int = {
     val input = readFile(filePath)
-    val x = findCrossingHailStorms(input, 7.0, 27.0)
-    //    println(mergeCount)
-    //    println(mergeCountWithinRange)
-    x
+    findCrossingHailStorms(input, "200000000000000".toBD, "400000000000000".toBD)
   }
 
   def problem2(filePath: String): Int = {

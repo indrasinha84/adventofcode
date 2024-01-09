@@ -31,6 +31,8 @@ object StringExtensions {
         case (h, q) => Some(str.splitAt(Math.min(h, q)))
     }
 
+    def toBD: BigDecimal = BigDecimal.valueOf(str.toDouble)
+
 
     def splitIntoTwoOnDot: Option[(String, String)] = {
         str.indexOf('.') match
