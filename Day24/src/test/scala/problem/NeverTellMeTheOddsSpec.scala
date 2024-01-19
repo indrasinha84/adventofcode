@@ -14,6 +14,6 @@ class NeverTellMeTheOddsSpec extends AnyFlatSpec with GivenWhenThen with Matcher
   }
 
   it should "match 69110" in {
-    NeverTellMeTheOdds.problem2(filePath) should be(69110)
+    NeverTellMeTheOdds.problem2(filePath) should be(69110L)
   }
 }
