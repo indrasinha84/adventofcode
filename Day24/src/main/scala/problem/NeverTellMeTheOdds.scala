@@ -71,31 +71,24 @@ object NeverTellMeTheOdds {
 
   def problem2(filePath: String): Long = {
     val input = readFile(filePath)
-
     def vx(i: Int) = {
       input(i).velocity.x
     }
-
     def vy(i: Int) = {
       input(i).velocity.y
     }
-
     def vz(i: Int) = {
       input(i).velocity.z
     }
-
     def px(i: Int) = {
       input(i).position.x
     }
-
     def py(i: Int) = {
       input(i).position.y
     }
-
     def pz(i: Int) = {
       input(i).position.z
     }
-
     val DArray = Array(
       Array(vy(0) - vy(1), vx(1) - vx(0), Zero, py(1) - py(0), px(0) - px(1), Zero),
       Array(vz(0) - vz(1), Zero, vx(1) - vx(0), pz(1) - pz(0), Zero, px(0) - px(1)),
