@@ -1,20 +1,29 @@
 package problem
 
-import java.util.concurrent.{ExecutorService, Executors}
+import extensions.StringExtensions.*
+
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.concurrent.ExecutionContext
+import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
-import scala.util.Using
-import scala.util.control.Breaks.{break, breakable}
-import scala.collection.parallel.CollectionConverters.*
+import scala.util.{Random, Using}
+
+final case class Edge(distance: Int, endNode: String)
+
+final case class Vertice(name: String, adjoiningNodes: Set[String])
 
 object Snowverload {
+  //
+  //  extension (listOfList: Seq[_]) {
+  //    def toGraphNodes: Seq[String] = {
+  //      listOfList.indices.map(col => Node(row, col))
+  //    }
+  //  }
 
   private def readFile(filePath: String) = Using(Source.fromFile(filePath)) { file =>
     file.getLines().map(_.split(':') match
-      case Array(left, right) => (left, right.trim.split(' ').toSet)
-    ).toSet.flatMap(s => s._2.map(r => Set(s._1, r)))
+      case Array(left, right) => (left, right.trim.split(' ').toSeq)
+    ).toSeq.flatMap(s => s._2.map(r => Seq(s._1, r)))
   }.get
 
   @tailrec
@@ -47,38 +56,63 @@ object Snowverload {
 
   }
 
-  def buildSparseMatrix(input: Set[Set[String]]) = {
-    val allCombos = input.flatten.toSeq.sorted.zipWithIndex.map({ case (k, i) => k -> (i, input.filter(_.contains(k)).flatten - k)
-    }).toMap
-    allCombos.toSeq.sorted.foreach(println)
-    val sparseMatrix = mutable.ArrayBuffer.fill(allCombos.size, allCombos.size)("")
+  private def buildAdjacencyMatrix(input: Set[Set[String]]) = {
+    val allCombos = input.flatten.toSeq.sorted.zipWithIndex.map({ case (k, i) => k -> (i, input.filter(_.contains(k)).flatten - k) }).toMap
+    val adjacencyMatrix = mutable.ArrayBuffer.fill(allCombos.size, allCombos.size)(0)
     allCombos.foreach(b => {
       val i = b._2._1
       b._2._2.map(allCombos).map(_._1).foreach(j => {
-        sparseMatrix(i)(j) = "*"
-        sparseMatrix(j)(i) = "*"
+        adjacencyMatrix(i)(j) = 1
       })
     })
-    import extensions.StringExtensions.*
-    sparseMatrix.map(_.map(_.lpad(' ', 1)).mkString(", ")).foreach(println)
+    adjacencyMatrix
+  }
+
+  private def contractMatrix(adj: ArrayBuffer[ArrayBuffer[Int]], from: Int, to: Int) = {
+    val adjCopy = adj.map(_.toArray).toArray
+    adjCopy(to).indices.foreach(j => {
+      if (j != from) {
+        adj(from)(j) += adj(to)(j)
+        adj(j)(from) += adj(j)(to)
+      }
+    })
+    adjCopy.indices.foreach(j => {
+      val newRow = adj(j)
+      newRow.remove(to)
+      adj(j) = newRow
+    })
+    adj.remove(to)
+    adj
   }
 
   def problem1(filePath: String): Int = {
     val input = readFile(filePath)
-    val allCombos = input.flatten.map(k => k -> (input.filter(_.contains(k)).flatten - k)).toMap
-    val results = allCombos.keySet.map(s => s -> findGroupForEveryStep(Set(s), allCombos, Seq.empty)).toMap
-    val combos = results("kkg").find(_.size == 17).get
-    val combinationsToCheck =
-      input.filter(p => {
-          (p & combos).nonEmpty
-        })
-        .toSeq.combinations(3)
-        .filter(_.flatten.toSet.size == 6)
-        .toSeq
-    println(s"Combinations found ${combinationsToCheck.size}")
-    combinationsToCheck.par
-      .map(s => getChainedGroups(input -- s.toSet, Seq.empty)).filter(_.size > 1).foreach(println)
+    val inputSet = input.map(_.toSet).toSet
+    var adj = buildAdjacencyMatrix(inputSet)
 
+    while (adj.length > 2) {
+      adj.map(_.map(_.toString.lpad(' ', 1)).mkString(", ")).foreach(println)
+      println
+      val rand = Random
+      val from = rand.nextInt(adj.length - 1)
+      val nonZeros = adj(from).zipWithIndex.filter(_._1 > 0).map(_._2)
+
+      @tailrec
+      def generateTo: Int = {
+        val nextNum = if (nonZeros.length > 1) rand.nextInt(nonZeros.length - 1) else 0
+        val num = nonZeros(nextNum)
+        if (num != from) num else generateTo
+      }
+
+      val to = generateTo
+      adj = contractMatrix(adj, from, to)
+    }
+    adj.map(_.map(_.toString.lpad(' ', 1)).mkString(", ")).foreach(println)
+
+    val verticesMap = inputSet.flatten.toSeq.sorted.zipWithIndex.map({ case (k, i) => k -> (i, inputSet.filter(_.contains(k)).flatten - k) })
+    val vertices = verticesMap.sortBy(_._2._1).map(v => {
+      Vertice(name = v._1, adjoiningNodes = v._2._2)
+    })
     2810
   }
 

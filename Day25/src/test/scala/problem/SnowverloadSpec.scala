@@ -7,7 +7,7 @@ import org.scalatest.matchers.should.Matchers
 
 class SnowverloadSpec extends AnyFlatSpec with GivenWhenThen with Matchers {
 
-  val filePath = "Day25/src/test/resources/input/input.XSCORE.txt"
+  val filePath = "Day25/src/test/resources/input/input.XSCORE1.txt"
 
   "Snowverload" should "match 2810" in {
     Snowverload.problem1(filePath) should be(2810)
